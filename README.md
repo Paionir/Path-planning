@@ -77,8 +77,12 @@ vector<double> conds_s, vector<double> conds_d,  double time_horizon, double s_g
 )
 ``` 
 that creates an entire set of trajectories by setting different final conditions for the ```minJerkPoly``` and ```keepVelPoly``` functions.  
-The final conditions are choosen in a way that allow the generated trajectories set to cover most of the possible manouver at a certain moment. So the set includes trajectories that span between all the 3 lanes, with different final speeds and different required times for the manouver.
-![IMAGE](./image1.png)
+The final conditions are choosen in a way that allow the generated trajectories set to cover most of the possible manouver at a certain moment. So the set includes trajectories that span between all the 3 lanes, with different final speeds and different required times for the manouver.  
+
+
+![IMAGE](imgs/imag.png)    
+
+
 In order to make the code more readable and manteinable I wrote also the class ```Traj``` that stores all the important information and methods for a unidimensional trajectory (_s(t)_ or _d(t)_). The class can be found in **trajectory.h**
 
 ### 4. Combination of a couple of unidimensional trajecotries _s(t)_ and _d(t)_  into a single bidimensional trajectory {_s(t)_, _d(t)_}
