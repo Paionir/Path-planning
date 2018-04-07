@@ -1,0 +1,42 @@
+Steps:
+A) Don't want to use the equal spacing strategy shown in the walktrough, I prefer the jerk minimizing trajectory approach so:
+
+	1) find the minimal jerk "velocity keeping quartic polynomials" for longitudinal trajectory ( see http://video.udacity-data.com.s3.amazonaws.com/topher/2017/July/595fd482_werling-optimal-trajectory-generation-for-dynamic-street-scenarios-in-a-frenet-frame/werling-optimal-trajectory-generation-for-dynamic-street-scenarios-in-a-frenet-frame.pdf)
+
+	2) use a quintic polynomial jerk minimizer trajectory for lateral movement 
+
+	3) combine 2 trajectory and sample points using a time interval of 0.02 seconds
+
+	Results: good velocity keeping but somewhat spiked d movement near curves. Probably caused by a problem in getXY function.
+
+
+B) Try to adjust getXY function to make it smoother 
+
+	1) use spline instead of linear interpolation between previous and next waypoint
+	
+	2) modify spline to return also equation parameters
+
+	Results: good transformation, much more accurate, but new problem arise in interaction with getFrenet function that still uses linear interpolation
+
+C) Try to adjust getFrenet function to make it more accurate
+	
+	1) use spline instead of linear interpolation between previous and next waypoint
+
+	2) use a trapezoidal approximation to calculate arc length along center line
+
+	Results: good transofmation, accurate and interacts well with my modified getXY. Problem arise when the road is parallel to Y axis (dx = 1.0), solved with dx and dy check
+
+D) Use time spaced points along trajectory to build a smooth path
+
+	1) Take the last "size_keep" points of the previous path
+
+	2) use calculated long and lateral trajectory function with increasing time of 0.02 seconds
+
+	Results: very smooth trajectory, with minimal jerk but still decent accelaration. No need to worry about acceleration, trajectory already knows. Problem in speed limit because my condition is set only on speed along s, so in high curvature parts of the track, the total speed surpass the speed limit. 
+
+E) Get a constraint that keeps total velocity under the speed limit
+
+
+	
+
+RIPORTA DENTRO TRAJECTORY
