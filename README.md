@@ -1,8 +1,6 @@
 # Udacity Self-Driving Cars Engineer Nanodegree  
 ## Path Planning Project:
 ## A pure reactive jerk-minimizing approach
-
-
 =====================
 
 
@@ -58,6 +56,8 @@ _keepVelPoly_ calculates the coefficients for a quartic polynomial given boundar
     
 The _keepVelPoly_ function let me fix the desired velocity I want my car to reach at the end of the trajectory without need to calculate the final position of the car. This is very useful for the longitudinal  trajectory along s, because I simply need to set a desired velocity. 
 The _minJerkPoly_ is instead very useful for the lateral trajecotry along d, because I always know where I want the car to be on the road (i.e. lane 0, 1 or 2) at the end of every trajectory.
+
+> Note: Instead of using a matrix inversion every time, I found a closed algebraic form for the coefficients of the polynomials, so I needed to use just normal arithmetic operations instead of matrix inversions.
   
   
 ### 2. Conversion from Frenet coordinates to global coordinates: problem with getXY function
@@ -78,11 +78,7 @@ vector<double> conds_s, vector<double> conds_d,  double time_horizon, double s_g
 ``` 
 that creates an entire set of trajectories by setting different final conditions for the ```minJerkPoly``` and ```keepVelPoly``` functions.  
 The final conditions are choosen in a way that allow the generated trajectories set to cover most of the possible manouver at a certain moment. So the set includes trajectories that span between all the 3 lanes, with different final speeds and different required times for the manouver.
-
-
-![](imgs/imag.png)
-
-
+![IMAGE](./image1.png)
 In order to make the code more readable and manteinable I wrote also the class ```Traj``` that stores all the important information and methods for a unidimensional trajectory (_s(t)_ or _d(t)_). The class can be found in **trajectory.h**
 
 ### 4. Combination of a couple of unidimensional trajecotries _s(t)_ and _d(t)_  into a single bidimensional trajectory {_s(t)_, _d(t)_}
@@ -126,11 +122,9 @@ The points where then passed to the simulator as the ```next_x_vals``` and ```ne
 	
 ## Final considerations
 
-Following the approach of selecting the best trajectory from a set of randomly generated trajectories
-it is possible to make the car drive safely without the implementation of a behavior planner.
-All the car needs is a set of limit conditions for the trajectory generation, some limits for the collision detections and a set of dynamic limits.   
-With those informations there is no need to implement a finite state machine and the car is able to drive
-just at a _reactive_ level when it generates the set of trajectory. (see [here][1])
+By following the approach of selecting the best trajectory from a set of randomly generated jerk-minimizing trajectories it is possible to make the car drive safely without the implementation of a behavior planner.
+All the informations the car needs is a set of limit conditions for the trajectory generation, some limits for the collision detections and a set of dynamic limits.   
+With those informations there is no need to implement a finite state machine to set a behavior and the car is able to drive just at a _reactive_ level when it generates the set of trajectory. (see [here][1])
 
 The limit conditions I used for the generation of trajectories:
 
@@ -143,6 +137,26 @@ The limit conditions I used for the collision check:
 1.	Min distance from preceding cars: 2 seconds (distance covered in 2 second at the current speed)
 2.  Min distance from preceding cars when changing lane: 0.5 seconds (distance covered in 2 second at the current speed)
 2.	Min lateral distance from other cars: 4 meters
+
+### Caveats
+1.  In order for the reactive mode to drive safely and move in a smart way in traffic, it is necessary to set a large time horizon for the path planning (5 seconds). If the time horizon is set lower, the reactive planner would drive still safely but will attempt a lot of lane changes to surpass slower cars.
+2.  The number of trajectories generated is extremely important in this implementation. In fact, more trajectories are examinated, more solution the planner has. This means that in order to achieve an optimal behavior, a greater computational cost is required. In my implementation I found that 300 trajectories every 200 ms are more than enough to satisfy all the project requirements.
+2.  The use of a simple behavior planner would greatly reduce the computational cost of the trajectories generation, because there will be a smaller set of possible final conditions for the car. 
+3. By selecting the most efficient lane to drive according to high level analysis of traffic, a behavior planner would make the car move much better in traffic jam with a smaller time horizon for path planning. 
+4. Since the conversion of coordinates from Frenet to global is still imprecise in some situations, I had to set the speed goal of the car to 45 Mph in order to avoid speed limit breaking. It is important to note that the speed limit is surpassed only when the coordinates are transformed to global coordinates and not when the trajectory is generated. 
+5. I could write a function to interpolate a polynomial after the conversion to global coordinate and then resample the points along this new trajectory, but that would taint the jerk-minimizing approach. So I simply reduced the speed goal. 
+
+## CONCLUSIONS
+
+This project was real fun! 
+I'm happy that my car can drive on an highway with traffic using just a reactive approach. Moreover I was able to use a jerk minimizing approach!
+
+Here is a small example of what my car can achieve:
+
+![image](imgs/img1.jpg)
+
+
+
 
 
 
